@@ -7,7 +7,7 @@ Doorstop GUI
 
 import sys
 from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QWidget
-from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QTreeWidget
+from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QTreeWidget, QTreeWidgetItem
 from PyQt5.QtGui import QIcon
 
 
@@ -66,6 +66,18 @@ class MainWindow(QMainWindow):
         layout.addWidget(mainSplit)
         mainContainer.setLayout(layout)
 
+        reqTree.setHeaderLabels(['Requirement Tree'])
+
+        llrRoot = QTreeWidgetItem(reqTree)
+        llrRoot.setText(0, 'LLR')
+
+        llrChild1 = QTreeWidgetItem()
+        llrChild1.setText(0, 'LLR0001')
+        llrRoot.addChild(llrChild1)
+
+        llrChild2 = QTreeWidgetItem()
+        llrChild2.setText(0, 'LLR0002')
+        llrRoot.addChild(llrChild2)
 
         sg = app.desktop().screenGeometry()
         wmax = sg.width()
