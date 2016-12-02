@@ -12,6 +12,49 @@ from PyQt5.QtGui import QIcon
 
 
 
+class ReqTree(QTreeWidget):
+
+    def __init__(self):
+        super().__init__()
+        self.setHeaderLabels(['Requirement Tree'])
+
+    def addRootItem(self, index, text):
+        rootItem = QTreeWidgetItem()
+        rootItem.setText(0, str(index) + ' ' + text)
+        self.insertTopLevelItem(index-1, rootItem)
+
+    def addChildItem(self, parent, finalIndex, index, text):
+        childItem = QTreeWidgetItem()
+        childItem.setText(0, str(index) + ' ' + text)
+        parent.insertChild(finalIndex-1, childItem)
+
+    def addItem(self, index, text):
+        print('additem ' + str(index))
+        indexArray = [int(x) for x in index.split('.') if x.strip()]
+        if not indexArray:
+            raise ValueError('Invalid item index: empty')
+        if len(indexArray) == 1:
+            self.addRootItem(indexArray[0], text)
+        else:
+            finalIndex = indexArray[-1]
+            subIndex = indexArray[:-1]
+            self.addChildItem(self.findParent(subIndex), finalIndex, index, text)
+
+    def findParent(self, subIndex):
+        if not subIndex:
+            raise ValueError('Invalid item index: empty')
+        parent = self.topLevelItem(subIndex[0]-1)
+        if not parent:
+            print('root not found ' + str(subIndex[0]-1))
+        while (parent and subIndex[1:]):
+            del subIndex[0]
+            parent = parent.child(subIndex[0]-1)
+        if not parent:
+            raise ValueError('Invalid item index: parent not found')
+        return parent
+
+
+
 class MainWindow(QMainWindow):
 
     def __init__(self, app):
@@ -54,7 +97,7 @@ class MainWindow(QMainWindow):
 
         self.setCentralWidget(mainContainer)
 
-        reqTree = QTreeWidget()
+        reqTree = ReqTree()
         reqView = QTreeWidget()
 
         mainSplit = QSplitter()
@@ -66,18 +109,18 @@ class MainWindow(QMainWindow):
         layout.addWidget(mainSplit)
         mainContainer.setLayout(layout)
 
-        reqTree.setHeaderLabels(['Requirement Tree'])
+        test1 = '1.1'
+        test2 = str(test1)
+        test = str("1.1")
 
-        llrRoot = QTreeWidgetItem(reqTree)
-        llrRoot.setText(0, 'LLR')
-
-        llrChild1 = QTreeWidgetItem()
-        llrChild1.setText(0, 'LLR0001')
-        llrRoot.addChild(llrChild1)
-
-        llrChild2 = QTreeWidgetItem()
-        llrChild2.setText(0, 'LLR0002')
-        llrRoot.addChild(llrChild2)
+        reqTree.addItem('1', 'Hardware')
+        reqTree.addItem('1.1', 'AXI')
+        reqTree.addItem('1.2', 'DMA')
+        reqTree.addItem('1.3', 'SERDES')
+        reqTree.addItem('2', 'Software')
+        reqTree.addItem('1.1.1', 'req1')
+        reqTree.addItem('1.1.2', 'req2')
+        reqTree.addItem('1.1.3', 'req3')
 
         sg = app.desktop().screenGeometry()
         wmax = sg.width()
