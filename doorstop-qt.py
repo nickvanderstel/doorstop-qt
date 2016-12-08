@@ -6,10 +6,10 @@ Doorstop PyQt GUI
 
 
 import sys
-from PyQt5.QtCore import Qt
+from PyQt5.QtCore import Qt, QSize
 from PyQt5.QtWidgets import QMainWindow, QApplication, QAction, QWidget, QFileDialog
 from PyQt5.QtWidgets import QSplitter, QVBoxLayout, QTreeWidget, QTreeWidgetItem, QTableWidget
-from PyQt5.QtWidgets import QTabWidget, QStackedWidget
+from PyQt5.QtWidgets import QTabWidget, QStackedWidget, QFrame
 from PyQt5.QtGui import QIcon
 
 from doorstop.core import builder
@@ -133,6 +133,8 @@ class TreeStack(QStackedWidget):
     def __init__(self):
         super().__init__()
         self._docList = {}
+        tempFrame = QTreeWidget()
+        self.addWidget(tempFrame)
 
     def addDoc(self, doc):
         newDoc = ReqTree(doc)
@@ -149,6 +151,8 @@ class DocStack(QStackedWidget):
     def __init__(self):
         super().__init__()
         self._docList = {}
+        tempFrame = QTableWidget()
+        self.addWidget(tempFrame)
 
     def addDoc(self, doc):
         newDoc = DocTable(doc)
@@ -206,8 +210,9 @@ class MainWindow(QMainWindow):
 
 
         # Parent container to hold everything in the main window
-        mainContainer = QWidget()
-        self.setCentralWidget(mainContainer)
+        self.mainContainer = QWidget()
+        self.mainContainer.hide()
+        self.setCentralWidget(self.mainContainer)
 
         # Document tree view widget
         self._docTree = DocTree()
@@ -231,6 +236,7 @@ class MainWindow(QMainWindow):
         treeSplit.addWidget(reqTreeWindow)
         treeSplit.setStretchFactor(0,1)
         treeSplit.setStretchFactor(1,9)
+        #treeSplit.setSizes([1,9])
 
 
         """
@@ -251,9 +257,10 @@ class MainWindow(QMainWindow):
         mainSplit.addWidget(self._reqView)
         mainSplit.setStretchFactor(0,1)
         mainSplit.setStretchFactor(1,3)
+        #treeSplit.setSizes([1,3])
         layout = QVBoxLayout()
         layout.addWidget(mainSplit)
-        mainContainer.setLayout(layout)
+        self.mainContainer.setLayout(layout)
 
         sg = app.desktop().screenGeometry()
         wmax = sg.width()
@@ -275,6 +282,7 @@ class MainWindow(QMainWindow):
                 self._docTree.addItem(doc)
                 self._reqStack.addDoc(doc)
                 self._reqView.addDoc(doc)
+            self.mainContainer.show()
 
     def _docSelected(self, item, col):
         self._reqStack.makeDocActive(item.doc)
